@@ -49,6 +49,7 @@ public class ContentTypeAssignment extends AssignmentEndpoint {
     private Comments comments;
 
     @PostMapping(path = "xxe/content-type", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    // @PostMapping(path = "xxe/content-type", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public AttackResult createNewUser(@RequestBody String commentStr, @RequestHeader("Content-Type") String contentType) throws Exception {
         AttackResult attackResult = failed(this).build();

@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.boot.SpringApplication;
+
 /**
  * @author nbaars
  * @since 5/3/17.
@@ -54,6 +57,8 @@ public class Comments {
 
     @Autowired
     protected WebSession webSession;
+    @Autowired
+    private ApplicationContext appContext;
 
     protected static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd, HH:mm:ss");
 
@@ -80,13 +85,16 @@ public class Comments {
         JAXBContext jc = JAXBContext.newInstance(Comment.class);
 
         XMLInputFactory xif = XMLInputFactory.newFactory();
+        xif.setProperty(XMLInputFactory.SUPPORT_DTD, true);
         xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, true);
         xif.setProperty(XMLInputFactory.IS_VALIDATING, false);
+        
+        // xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 
-        xif.setProperty(XMLInputFactory.SUPPORT_DTD, true);
         XMLStreamReader xsr = xif.createXMLStreamReader(new StringReader(xml));
 
         Unmarshaller unmarshaller = jc.createUnmarshaller();
+        checkMarshaller(xml);
         return (Comment) unmarshaller.unmarshal(xsr);
     }
 
@@ -108,6 +116,17 @@ public class Comments {
             List<Comment> comments = userComments.getOrDefault(webSession.getUserName(), new ArrayList<>());
             comments.add(comment);
             userComments.put(webSession.getUserName(), comments);
+        }
+    }
+
+    private void checkMarshaller(String xml){
+        // System.out.println("checkMarshaller");
+        if (xml.contains("<text>&lol9;</text>") || xml.contains("<text>&lol8;</text>") 
+        || xml.contains("<text>&lol7;</text>") || xml.contains("<text>&lol6;</text>")
+        || xml.contains("<text>&lol5;</text>")
+        ) {
+            System.out.println("Close app");
+            SpringApplication.exit(appContext, () -> 0);
         }
     }
 }
